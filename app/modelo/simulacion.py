@@ -9,10 +9,12 @@ from collections import deque
 from dataclasses import dataclass
 from heapq import heappop, heappush
 from itertools import count
-from math import isfinite
+from math import isfinite, sqrt
 from random import Random
+from statistics import fmean, stdev
 
 from .configuracion import Configuracion
+from .resultados import ResultadoEvaluacion
 
 
 _FINALIZACION = 0
@@ -132,9 +134,63 @@ def _simular_repeticion(
             "amplíe la duración de la simulación."
         )
     return _ResultadoRepeticion(
-        utilizacion=ocupacion_minutos / configuracion.duracion_minutos / agentes,
+        utilizacion=min(1.0, ocupacion_minutos / configuracion.duracion_minutos / agentes),
         probabilidad_espera=con_espera / medidas,
         nivel_servicio=a_tiempo / medidas,
         espera_media_minutos=espera_total / medidas,
         llamadas_medidas=medidas,
     )
+
+
+class Simulador:
+    """Estrategia de simulación con el mismo contrato de evaluación que Erlang-C."""
+
+    def evaluar(
+        self, configuracion: Configuracion, agentes: int
+    ) -> ResultadoEvaluacion:
+        """Resume repeticiones independientes y estima un intervalo del 95 %.
+
+        Las métricas son medias entre repeticiones; el conteo suma sus llamadas.
+        El intervalo usa la aproximación normal acordada, con desviación
+        muestral entre repeticiones, sin considerar independientes las llamadas
+        correlacionadas de una misma ejecución. No corrige sesgos por un
+        calentamiento insuficiente.
+        """
+        _validar_escenario(configuracion, agentes)
+        resultados = []
+        for indice in range(configuracion.repeticiones):
+            # Semillas distintas por repetición y por fuente, sin alterar el
+            # generador global. Se conservan al comparar diferentes agentes.
+            semilla_llegadas = f"{configuracion.semilla}:{indice}:llegadas"
+            semilla_atenciones = f"{configuracion.semilla}:{indice}:atenciones"
+            try:
+                resultado = _simular_repeticion(
+                    configuracion,
+                    agentes,
+                    Random(semilla_llegadas),
+                    Random(semilla_atenciones),
+                )
+            except ValueError as error:
+                raise ValueError(f"Repetición {indice + 1}: {error}") from error
+            resultados.append(resultado)
+
+        niveles = [resultado.nivel_servicio for resultado in resultados]
+        servicio_medio = fmean(niveles)
+        margen = 1.96 * stdev(niveles) / sqrt(configuracion.repeticiones)
+        return ResultadoEvaluacion(
+            metodo="Simulación",
+            agentes=agentes,
+            utilizacion=fmean(resultado.utilizacion for resultado in resultados),
+            probabilidad_espera=fmean(
+                resultado.probabilidad_espera for resultado in resultados
+            ),
+            nivel_servicio=servicio_medio,
+            espera_media_minutos=fmean(
+                resultado.espera_media_minutos for resultado in resultados
+            ),
+            intervalo_servicio_95=(
+                max(0.0, servicio_medio - margen),
+                min(1.0, servicio_medio + margen),
+            ),
+            llamadas_medidas=sum(resultado.llamadas_medidas for resultado in resultados),
+        )
