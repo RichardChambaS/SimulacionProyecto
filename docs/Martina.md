@@ -46,7 +46,7 @@ Las comprobaciones pueden realizarse desde la consola de Python o con comandos t
 ## Entrega a D
 
 - Estado: implementación de Martina completada y comprobada localmente. No publicada ni integrada en `main`, por instrucción del usuario de no hacer push.
-- Rama: `feature/m-simulacion`, creada desde `origin/main` en `fc9b553`, con la base y la teoría de Richard ya integradas. Primer commit local: `ad7cb27` (`feat(simulacion): implementar eventos y cola FIFO`). El hash del commit de repeticiones se registrará después de crearlo.
+- Rama: `feature/m-simulacion`, creada desde `origin/main` en `fc9b553`, con la base y la teoría de Richard ya integradas. Primer commit local: `ad7cb27` (`feat(simulacion): implementar eventos y cola FIFO`). Segundo commit local: `06de533` (`feat(simulacion): agregar replicas e intervalos`). Este registro final se guarda en un commit documental posterior.
 - PR: no se abrirá en esta continuación; el usuario solicitó trabajar sin hacer push.
 - Configuración de comparación: 30 llamadas/h, atención media de 6 min, meta 0.80 en 20 s, duración medida de 4800 min después de 1000 min de calentamiento, 30 repeticiones y semilla 42. Se evaluaron 4, 5 y 6 agentes. Motor: secuencias controladas temporales con uno y dos agentes. Python 3.12.14.
 - Comprobaciones manuales del motor, ejecutadas mediante la entrada estándar de Python: siete escenarios controlados correctos y diez escenarios inválidos rechazados con `ValueError`. No se crearon tests ni scripts permanentes.
