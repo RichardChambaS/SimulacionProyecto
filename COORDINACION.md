@@ -6,10 +6,12 @@ Aplicación de escritorio en Python para determinar el mínimo de agentes que cu
 
 - [x] División del trabajo y documentos individuales preparados.
 - [x] Repositorio GitHub creado y URL compartida por el equipo: https://github.com/RichardChambaS/SimulacionProyecto
-- [ ] Base y contratos implementados por R e integrados en `main`.
+- [x] Base y contratos implementados por R e integrados en `main`.
 - [ ] Implementación e integración de las cuatro partes terminadas.
 
 Se ha preparado la documentación y la estructura MVC con archivos vacíos. La implementación sigue pendiente. Esta lista describe los hitos; las tareas detalladas se marcan en el documento de cada responsable.
+
+Avance del 2026-10-26: D implementó y comprobó localmente el estudio, el controlador, el arranque y la documentación. Estos cambios aún no tienen commit ni PR, por lo que el hito de integración de las cuatro partes permanece pendiente hasta confirmarlos en `main`.
 
 ## Reparto y propiedad de archivos
 

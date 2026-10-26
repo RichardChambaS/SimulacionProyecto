@@ -1,13 +1,17 @@
-"""Entrada mínima de la base del proyecto; Derick completará el arranque MVC."""
+"""Punto de entrada de la aplicación: construye el flujo MVC completo."""
 
-from app.modelo.configuracion import Configuracion
+from app.controlador.controlador import Controlador
+from app.modelo.erlang_c import ErlangC
+from app.modelo.estudio import EstudioServicio
+from app.modelo.simulacion import Simulador
+from app.vista.ventana_principal import VentanaPrincipal
 
 
 def main() -> None:
-    configuracion = Configuracion()
-    configuracion.validar()
-    print("Base del modelo disponible: configuración y contratos de resultados.")
-    print("El arranque de la interfaz y su integración están pendientes de Derick.")
+    estudio = EstudioServicio(ErlangC(), Simulador())
+    vista = VentanaPrincipal()
+    Controlador(vista, estudio)
+    vista.iniciar()
 
 
 if __name__ == "__main__":
