@@ -14,13 +14,13 @@ Archivos propios: `.gitignore`, `app/__init__.py`, `app/modelo/__init__.py`, `ap
 
 Puedes comenzar primero. La publicación requiere que el equipo comparta la URL del repositorio. Usa tu identidad Git; no configures identidades de M, E o D.
 
-- [ ] Publicar el commit inicial con los documentos de coordinación una vez disponible el repositorio.
-- [ ] Crear la rama `feature/r-base-erlang`.
-- [ ] Preparar `.gitignore` para entorno virtual, cachés de Python y archivos del editor.
-- [ ] Crear los paquetes base y `main.py` mínimo, sin importar módulos aún inexistentes.
-- [ ] Implementar `Configuracion`, sus validaciones y propiedades derivadas según `COORDINACION.md`.
-- [ ] Implementar las tres dataclasses de resultados acordadas.
-- [ ] Comprobar importaciones, conversiones de unidades y rechazo de entradas inválidas mediante ejecución manual.
+- [x] Publicar el commit inicial con los documentos de coordinación una vez disponible el repositorio.
+- [x] Crear la rama `feature/r-base-erlang`.
+- [x] Preparar `.gitignore` para entorno virtual, cachés de Python y archivos del editor.
+- [x] Crear los paquetes base y `main.py` mínimo, sin importar módulos aún inexistentes.
+- [x] Implementar `Configuracion`, sus validaciones y propiedades derivadas según `COORDINACION.md`.
+- [x] Implementar las tres dataclasses de resultados acordadas.
+- [x] Comprobar importaciones, conversiones de unidades y rechazo de entradas inválidas mediante ejecución manual.
 - [ ] Integrar esta base en `main` con un PR temprano y registrar la entrega a M, E y D.
 - [ ] Registrar que `main.py` queda a cargo de D a partir de esta entrega.
 
@@ -45,13 +45,13 @@ Orientación matemática: con `lambda` y `mu` en minutos, `a = lambda / mu`, `rh
 
 ## Entrega al equipo
 
-- Estado: pendiente.
-- Rama / commits: pendiente.
+- Estado: base implementada y comprobada en la rama de Richard; integración y teoría pendientes.
+- Rama: `feature/r-base-erlang`. Commits iniciales publicados: `8396097` (coordinación) y `7f04b71` (estructura). El hash de la base se registrará en la siguiente entrega.
 - PR de base / PR de teoría: pendiente.
-- Archivos terminados: pendiente.
-- Comandos o acciones de comprobación y resultados observados: pendiente.
+- Archivos de base terminados: `.gitignore`, `app/__init__.py`, `app/modelo/__init__.py`, `app/modelo/configuracion.py`, `app/modelo/resultados.py` y `main.py` mínimo.
+- Comprobaciones manuales con Python 3.12.14: importaciones y dataclasses correctas; 30 llamadas/h = 0.5/min, servicio = 1/6 por minuto, carga = 3 erlangs y umbral = 1/3 de minuto. Se rechazaron 56 entradas inválidas con `ValueError`, incluidos texto, booleanos, NaN, infinitos, valores negativos y valores no representables. La ejecución de `main.py` informa que el arranque gráfico está pendiente. No se crearon archivos de tests.
 - Siguiente paso: M, E y D deben sincronizar la base integrada antes de implementar sus partes.
 
 ## Bloqueos o cambios de contrato
 
-- Repositorio disponible: https://github.com/RichardChambaS/SimulacionProyecto. La implementación de la base sigue pendiente.
+- Repositorio disponible: https://github.com/RichardChambaS/SimulacionProyecto. No hay bloqueos técnicos. Requiere Python 3.10 o posterior; el comando global `python` de este equipo apunta a Python 2.7, por lo que las comprobaciones se ejecutaron con Python 3.12.14 del entorno de Codex.

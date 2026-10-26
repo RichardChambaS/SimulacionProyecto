@@ -1,0 +1,21 @@
+# Entornos virtuales y variables locales
+.venv/
+venv/
+env/
+.env
+.env.*
+
+# Archivos generados por Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+build/
+dist/
+
+# Configuracion local de editores y sistema operativo
+.idea/
+.vscode/
+*.swp
+*~
+.DS_Store
+Thumbs.db
