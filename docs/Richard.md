@@ -33,7 +33,7 @@ Puedes comenzar primero. La publicación requiere que el equipo comparta la URL 
 - [x] Implementar `buscar_minimo(configuracion)` desde el primer entero estable.
 - [x] Comprobar manualmente un caso conocido, el rechazo del caso inestable, el cumplimiento del candidato mínimo y el incumplimiento del anterior cuando sea estable.
 - [x] Verificar que la espera media es no negativa y que el nivel de servicio mejora al aumentar agentes manteniendo el resto fijo.
-- [ ] Crear el PR de teoría y actualizar esta entrega.
+- [x] Crear el PR de teoría y actualizar esta entrega.
 
 Orientación matemática: con `lambda` y `mu` en minutos, `a = lambda / mu`, `rho = a / c`, `SL(t) = 1 - P(espera) * exp(-(c * mu - lambda) * t)` y `Wq = P(espera) / (c * mu - lambda)`. No confundir probabilidad de esperar con probabilidad de incumplir el umbral.
 
@@ -45,12 +45,12 @@ Orientación matemática: con `lambda` y `mu` en minutos, `a = lambda / mu`, `rh
 
 ## Entrega al equipo
 
-- Estado: base integrada en `main` mediante el PR #1; teoría implementada y comprobada, pendiente de publicar su PR.
-- Rama: `feature/r-base-erlang`. Commits: `8396097` (coordinación), `7f04b71` (estructura), `3a4b546` (configuración y contratos); la base se integró en `35f1fe6`. El hash de teoría se registrará en la siguiente entrega.
-- PR de base: https://github.com/RichardChambaS/SimulacionProyecto/pull/1 (integrado). PR de teoría: pendiente.
-- Archivos de base terminados: `.gitignore`, `app/__init__.py`, `app/modelo/__init__.py`, `app/modelo/configuracion.py`, `app/modelo/resultados.py` y `main.py` mínimo.
+- Estado: parte de Richard completada y publicada. Base integrada en `main` mediante el PR #1; teoría y registro final de entrega disponibles en el PR #2, pendiente de revisión e integración por el equipo.
+- Rama: `feature/r-base-erlang`. Commits: `8396097` (coordinación), `7f04b71` (estructura), `3a4b546` (configuración y contratos); la base se integró en `35f1fe6`. Teoría implementada en `b00b1a7`. La entrega final de este documento se registra en un commit documental posterior.
+- PR de base: https://github.com/RichardChambaS/SimulacionProyecto/pull/1 (integrado). PR de teoría: https://github.com/RichardChambaS/SimulacionProyecto/pull/2 (abierto para revisión e integración).
+- Archivos terminados: `app/modelo/erlang_c.py`, `.gitignore`, `app/__init__.py`, `app/modelo/__init__.py`, `app/modelo/configuracion.py`, `app/modelo/resultados.py` y `main.py` mínimo.
 - Comprobaciones manuales con Python 3.12.14: importaciones y dataclasses correctas; 30 llamadas/h = 0.5/min, servicio = 1/6 por minuto, carga = 3 erlangs y umbral = 1/3 de minuto. Se rechazaron 56 entradas inválidas con `ValueError`, incluidos texto, booleanos, NaN, infinitos, valores negativos y valores no representables. La ejecución de `main.py` informa que el arranque gráfico está pendiente. No se crearon archivos de tests.
-- Entrega de `main.py`: desde la integración del PR #1 queda exclusivamente a cargo de Derick. Richard no lo volverá a modificar. M, E y D ya pueden sincronizar `main` e implementar sus partes contra los contratos publicados.
+- Entrega de `main.py`: desde la integración del PR #1 queda exclusivamente a cargo de Derick. Richard no lo volverá a modificar. M, E y D ya pueden sincronizar `main` e implementar sus partes contra los contratos publicados. Derick o el equipo deben revisar e integrar el PR #2 antes de ejecutar el estudio completo con la teoría. Los hitos globales de `COORDINACION.md` quedan a cargo de Derick, como se acordó.
 
 ## Bloqueos o cambios de contrato
 
