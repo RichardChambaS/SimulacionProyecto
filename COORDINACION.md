@@ -2,16 +2,29 @@
 
 Aplicación de escritorio en Python para determinar el mínimo de agentes que cumple una meta de servicio mediante Erlang-C y contrastarlo con simulación de eventos discretos M/M/c.
 
-## Estado inicial
+## Estado actual
+
+Actualización de esta copia local del 2026-10-26: el programa fue corregido y
+ampliado con tres gráficas, exportación por repetición, comparación de errores,
+progreso y cancelación. Los contratos vigentes se describen abajo y en README.md.
+Las notas anteriores de entrega de cada persona son históricas. Esta revisión
+se incluye en la actualización de `main` autorizada el 2026-10-27.
+
+Actualización de interfaz del 2026-10-27: Tkinter usa los símbolos del informe,
+λ por minuto, opciones avanzadas desplegables y agentes automáticos o manuales.
+Los errores e intervalos detallados se conservan en la exportación; la pantalla
+muestra un resumen y cinco medidas. La estimación previa de trabajo y sus límites
+de uso se describen en README.md. Las fórmulas, el motor y la estadística se conservan.
 
 - [x] División del trabajo y documentos individuales preparados.
 - [x] Repositorio GitHub creado y URL compartida por el equipo: https://github.com/RichardChambaS/SimulacionProyecto
 - [x] Base y contratos implementados por R e integrados en `main`.
-- [ ] Implementación e integración de las cuatro partes terminadas.
+- [x] Implementación e integración de las cuatro partes terminadas.
 
-Se ha preparado la documentación y la estructura MVC con archivos vacíos. La implementación sigue pendiente. Esta lista describe los hitos; las tareas detalladas se marcan en el documento de cada responsable.
+La implementación está completa y fue comprobada con 85 verificaciones generales
+y 24 de interfaz. El 2026-10-27 se autorizó confirmar y publicar la revisión en `main`.
 
-Avance del 2026-10-26: D implementó y comprobó localmente el estudio, el controlador, el arranque y la documentación. Estos cambios aún no tienen commit ni PR, por lo que el hito de integración de las cuatro partes permanece pendiente hasta confirmarlos en `main`.
+Avance del 2026-10-26: D implementó y comprobó localmente el estudio, el controlador, el arranque y la documentación. En ese momento la confirmación y publicación estaban pendientes; las notas individuales de esa entrega se conservan como historial.
 
 ## Reparto y propiedad de archivos
 
@@ -53,7 +66,7 @@ Dataclass con estos campos y valores iniciales:
 
 Los últimos cuatro valores son valores iniciales propuestos para la ejecución, no datos del problema original.
 
-Método `validar() -> None`: lanza `ValueError` con mensaje legible ante entradas inválidas. Las tasas y duración deben ser positivas y finitas, el calentamiento y umbral no negativos, la meta debe cumplir `0 < meta_servicio < 1` y las repeticiones deben ser un entero de al menos 30. La semilla debe ser un entero no negativo. Las cantidades de agentes deben ser enteros positivos.
+Método `validar() -> None`: lanza `ValueError` con mensaje legible ante entradas inválidas. Las tasas y duración deben ser positivas y finitas, el calentamiento y umbral no negativos, la meta debe cumplir `0 < meta_servicio < 1` y las repeticiones deben ser un entero de al menos 2. La semilla debe ser un entero no negativo. Las cantidades de agentes deben ser enteros positivos. El mínimo de dos repeticiones es técnico y no asegura precisión experimental.
 
 Propiedades derivadas: `tasa_llegadas_minuto`, `tasa_servicio_minuto`, `carga_erlangs` y `umbral_minutos`. Los cálculos internos utilizan minutos.
 
@@ -62,6 +75,17 @@ Propiedades derivadas: `tasa_llegadas_minuto`, `tasa_servicio_minuto`, `carga_er
 - `ResultadoEvaluacion`: `metodo: str`, `agentes: int`, `utilizacion: float`, `probabilidad_espera: float`, `nivel_servicio: float`, `espera_media_minutos: float`, `intervalo_servicio_95: tuple[float, float] | None = None`, `llamadas_medidas: int | None = None`.
 - `ResultadoEscenario`: `agentes: int`, `teorico: ResultadoEvaluacion`, `simulado: ResultadoEvaluacion`.
 - `ResultadoEstudio`: `configuracion: Configuracion`, `minimo_teorico: int`, `escenarios: list[ResultadoEscenario]`.
+
+Ampliación vigente: `ResultadoEvaluacion` incluye `longitud_media_cola`, el
+diccionario `intervalos_95` y una lista `repeticiones` de `ResultadoRepeticion`
+con índice, semillas y cinco medidas. `ResultadoEscenario` incluye
+`estado_servicio` y el diccionario `comparaciones` de `ComparacionMetrica`.
+Los campos anteriores se conservan. `Simulador.evaluar` y
+`EstudioServicio.ejecutar` aceptan los argumentos opcionales de palabra clave
+`progreso` y `cancelar`. `EstudioServicio.ejecutar` admite además `agentes=None`:
+con None conserva la selección automática; con una lista valida tres enteros distintos
+con c > A y los ordena. El mínimo teórico siempre se busca independientemente.
+La vista vincula también exportación y cancelación.
 
 Son dataclasses. Probabilidades, utilización e intervalos se guardan como proporciones entre 0 y 1; solo la vista los convierte a porcentajes. `metodo` será `Erlang-C` o `Simulación`. La teoría no tiene intervalo de confianza ni conteo de llamadas. La utilización teórica es la carga dividida para el número de agentes; la simulada se estima sobre el período medido, incluyendo la ocupación por llamadas llegadas en el calentamiento.
 
@@ -72,7 +96,7 @@ Son dataclasses. Probabilidades, utilización e intervalos se guardan como propo
 | `erlang_c.ErlangC` | `evaluar(configuracion, agentes) -> ResultadoEvaluacion` y `buscar_minimo(configuracion) -> int` |
 | `simulacion.Simulador` | `evaluar(configuracion, agentes) -> ResultadoEvaluacion`; devuelve el resumen de todas las repeticiones |
 | `estudio.EstudioServicio` | Constructor `EstudioServicio(teorico, simulador)`; método `ejecutar(configuracion) -> ResultadoEstudio` |
-| `vista.VentanaPrincipal` | Constructor sin argumentos; métodos `obtener_configuracion()`, `vincular_ejecucion(callback)`, `establecer_ocupado(ocupado)`, `mostrar_resultados(resultado)`, `mostrar_error(mensaje)` e `iniciar()` |
+| `vista.VentanaPrincipal` | Constructor sin argumentos; métodos `obtener_configuracion()`, `obtener_agentes()` (None o tres enteros), `confirmar_carga(carga)`, `vincular_ejecucion(callback)`, `establecer_ocupado(ocupado)`, `mostrar_resultados(resultado)`, `mostrar_error(mensaje)` e `iniciar()` |
 | `controlador.Controlador` | Constructor `Controlador(vista, estudio)`; método `ejecutar()` vinculado al botón de la vista |
 
 `VentanaPrincipal` hereda de `tkinter.Tk`, de modo que D puede usar `after()` para consultar el trabajo de fondo. `obtener_configuracion()` convierte texto a números y puede lanzar `ValueError`; la validación de dominio sigue en el modelo. `iniciar()` ejecuta el bucle principal de Tkinter. `main.py` crea las dos estrategias, el estudio, la vista y el controlador, y llama a `vista.iniciar()`.
@@ -84,8 +108,8 @@ Son dataclasses. Probabilidades, utilización e intervalos se guardan como propo
 - La espera va desde la llegada hasta el inicio de atención. La meta incluye exactamente el umbral: `espera <= umbral_minutos`.
 - Cuando hay empate temporal, las finalizaciones se procesan antes de las llegadas; se conserva el orden FIFO.
 - Las llamadas medidas son las que llegan en `[calentamiento, calentamiento + duracion)`. Todas deben tener su espera observada, aunque empiecen su atención después del período de llegadas. Las llamadas del calentamiento afectan al estado, pero no al denominador del nivel de servicio.
-- M calcula un intervalo aproximado del 95 % a partir de los niveles de servicio de las repeticiones independientes: media ± `1.96 * desviacion_muestral / sqrt(repeticiones)`, acotado a `[0, 1]`. Se etiqueta como aproximado y se reconoce que no corrige un calentamiento insuficiente. No se tratan las llamadas correlacionadas de una sola repetición como muestras independientes.
-- D muestra tres escenarios: mínimo teórico y sus vecinos. Si el vecino inferior es inestable, usa mínimo, mínimo + 1 y mínimo + 2.
+- Se calcula un intervalo aproximado del 95 % para las cinco medidas: media ± `t(0.975, R-1) * desviacion_muestral / sqrt(R)`, con t de Student de SciPy. Los límites se acotan al dominio de la medida. El intervalo no corrige un calentamiento insuficiente. No se tratan las llamadas correlacionadas de una repetición como muestras independientes.
+- D muestra los escenarios confirmados de 4, 6 y 8 agentes para los parámetros del caso. Con otras entradas, usa mínimo - 2, mínimo y mínimo + 2; si el inferior es inestable, intenta mínimo - 1. Si ninguno es estable, usa mínimo, mínimo + 2 y mínimo + 4. La búsqueda teórica sigue recorriendo todos los enteros estables, incluido 5 en el caso actual.
 - El mínimo teórico es el primer entero estable que cumple la meta. Para la simulación: límite inferior del intervalo >= meta indica cumplimiento respaldado; límite superior < meta indica incumplimiento; el resto indica resultado no concluyente. No se anuncia un mínimo simulado demostrado fuera de los escenarios evaluados.
 
 ## Orden de trabajo y commits

@@ -73,9 +73,9 @@ class Configuracion:
         if (
             isinstance(self.repeticiones, bool)
             or not isinstance(self.repeticiones, int)
-            or self.repeticiones < 30
+            or self.repeticiones < 2
         ):
-            raise ValueError("Las repeticiones deben ser un número entero de al menos 30.")
+            raise ValueError("Las repeticiones deben ser un número entero de al menos 2.")
         if (
             isinstance(self.semilla, bool)
             or not isinstance(self.semilla, int)
@@ -86,3 +86,6 @@ class Configuracion:
         _validar_real("La tasa de llegadas por minuto", self.tasa_llegadas_minuto)
         _validar_real("La tasa de servicio por minuto", self.tasa_servicio_minuto)
         _validar_real("La carga ofrecida en erlangs", self.carga_erlangs)
+        fin = self.calentamiento_minutos + self.duracion_minutos
+        if not isfinite(fin) or fin <= self.calentamiento_minutos:
+            raise ValueError("El período de medición no es representable en minutos.")

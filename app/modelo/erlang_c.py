@@ -94,4 +94,5 @@ class ErlangC:
             probabilidad_espera=probabilidad_espera,
             nivel_servicio=max(0.0, min(1.0, nivel_servicio)),
             espera_media_minutos=espera_media,
+            longitud_media_cola=configuracion.tasa_llegadas_minuto * espera_media,
         )

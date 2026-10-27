@@ -1,5 +1,10 @@
 # M — Simulación de eventos discretos
 
+## Revisión local actual
+
+El programa de esta copia fue corregido y ampliado el 2026-10-26. README.md y COORDINACION.md describen los contratos vigentes, las tres gráficas, la exportación por repetición, los intervalos t de Student, el progreso y la cancelación. Las entregas y comprobaciones anteriores de este documento se conservan como historial; sus descripciones de interfaces o estadística pueden corresponder a la versión anterior. Esta revisión corresponde a la actualización de main autorizada el 2026-10-27; las notas de entrega anteriores se conservan como historial.
+
+
 ## Mensaje para tu agente
 
 > Soy M. Lee `COORDINACION.md` y `docs/Martina.md` completos. Comprueba que la base de R esté integrada y sincroniza mi rama. Implementa únicamente `app/modelo/simulacion.py` y actualiza `docs/Martina.md`. Respeta los contratos de configuración y resultados; no dupliques las clases de R ni implementes interfaz, teoría o controlador. No crees tests ni inicies otros agentes. Haz commits por avances coherentes, marca con `[x]` solo tareas comprobadas y registra los resultados, bloqueos y la entrega a D. Si falta una dependencia compartida, indícala sin modificar archivos ajenos.

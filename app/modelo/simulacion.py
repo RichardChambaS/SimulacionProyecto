@@ -12,9 +12,13 @@ from itertools import count
 from math import isfinite, sqrt
 from random import Random
 from statistics import fmean, stdev
+from threading import Event
+from typing import Callable
+
+from scipy.stats import t as t_student
 
 from .configuracion import Configuracion
-from .resultados import ResultadoEvaluacion
+from .resultados import METRICAS, ResultadoEvaluacion, ResultadoRepeticion
 
 
 _FINALIZACION = 0
@@ -35,6 +39,11 @@ class _ResultadoRepeticion:
     nivel_servicio: float
     espera_media_minutos: float
     llamadas_medidas: int
+    longitud_media_cola: float
+
+
+class SimulacionCancelada(Exception):
+    """La persona solicitó detener el estudio antes de completarlo."""
 
 
 def _validar_escenario(configuracion: Configuracion, agentes: int) -> None:
@@ -72,6 +81,7 @@ def _simular_repeticion(
     agentes: int,
     llegadas: Random,
     atenciones: Random,
+    cancelar: Event | None = None,
 ) -> _ResultadoRepeticion:
     """Ejecuta un escenario validado con dos fuentes aleatorias independientes."""
     inicio = configuracion.calentamiento_minutos
@@ -85,6 +95,8 @@ def _simular_repeticion(
     con_espera = 0
     a_tiempo = 0
     espera_total = 0.0
+    area_cola = 0.0
+    reloj_anterior = 0.0
 
     def programar_llegada(reloj: float) -> None:
         siguiente = _tiempo_futuro(
@@ -109,7 +121,14 @@ def _simular_repeticion(
 
     programar_llegada(0.0)
     while eventos:
+        if cancelar is not None and cancelar.is_set():
+            raise SimulacionCancelada("Estudio cancelado.")
         reloj, tipo, _ = heappop(eventos)
+        # El estado anterior permanece constante entre eventos. El área se
+        # recorta a la ventana medida, incluyendo la cola del calentamiento.
+        intervalo = max(0.0, min(reloj, fin) - max(reloj_anterior, inicio))
+        area_cola += len(cola) * intervalo
+        reloj_anterior = reloj
         if tipo == _FINALIZACION:
             ocupados -= 1
             if cola:
@@ -139,6 +158,7 @@ def _simular_repeticion(
         nivel_servicio=a_tiempo / medidas,
         espera_media_minutos=espera_total / medidas,
         llamadas_medidas=medidas,
+        longitud_media_cola=area_cola / configuracion.duracion_minutos,
     )
 
 
@@ -146,19 +166,23 @@ class Simulador:
     """Estrategia de simulación con el mismo contrato de evaluación que Erlang-C."""
 
     def evaluar(
-        self, configuracion: Configuracion, agentes: int
+        self, configuracion: Configuracion, agentes: int,
+        *, progreso: Callable[[int], None] | None = None,
+        cancelar: Event | None = None,
     ) -> ResultadoEvaluacion:
         """Resume repeticiones independientes y estima un intervalo del 95 %.
 
         Las métricas son medias entre repeticiones; el conteo suma sus llamadas.
-        El intervalo usa la aproximación normal acordada, con desviación
-        muestral entre repeticiones, sin considerar independientes las llamadas
+        El intervalo usa t de Student y la desviación muestral entre
+        repeticiones, sin considerar independientes las llamadas
         correlacionadas de una misma ejecución. No corrige sesgos por un
         calentamiento insuficiente.
         """
         _validar_escenario(configuracion, agentes)
         resultados = []
         for indice in range(configuracion.repeticiones):
+            if cancelar is not None and cancelar.is_set():
+                raise SimulacionCancelada("Estudio cancelado.")
             # Semillas distintas por repetición y por fuente, sin alterar el
             # generador global. Se conservan al comparar diferentes agentes.
             semilla_llegadas = f"{configuracion.semilla}:{indice}:llegadas"
@@ -169,28 +193,36 @@ class Simulador:
                     agentes,
                     Random(semilla_llegadas),
                     Random(semilla_atenciones),
+                    cancelar,
                 )
             except ValueError as error:
                 raise ValueError(f"Repetición {indice + 1}: {error}") from error
-            resultados.append(resultado)
+            resultados.append(ResultadoRepeticion(
+                indice=indice + 1,
+                semilla_llegadas=semilla_llegadas,
+                semilla_atenciones=semilla_atenciones,
+                **vars(resultado),
+            ))
+            if progreso is not None:
+                progreso(indice + 1)
 
-        niveles = [resultado.nivel_servicio for resultado in resultados]
-        servicio_medio = fmean(niveles)
-        margen = 1.96 * stdev(niveles) / sqrt(configuracion.repeticiones)
+        medias = {}
+        intervalos = {}
+        critico = float(t_student.ppf(0.975, configuracion.repeticiones - 1))
+        proporciones = {"nivel_servicio", "utilizacion", "probabilidad_espera"}
+        for metrica in METRICAS:
+            valores = [getattr(resultado, metrica) for resultado in resultados]
+            media = fmean(valores)
+            margen = critico * stdev(valores) / sqrt(configuracion.repeticiones)
+            medias[metrica] = media
+            limite_superior = min(1.0, media + margen) if metrica in proporciones else media + margen
+            intervalos[metrica] = (max(0.0, media - margen), limite_superior)
         return ResultadoEvaluacion(
             metodo="Simulación",
             agentes=agentes,
-            utilizacion=fmean(resultado.utilizacion for resultado in resultados),
-            probabilidad_espera=fmean(
-                resultado.probabilidad_espera for resultado in resultados
-            ),
-            nivel_servicio=servicio_medio,
-            espera_media_minutos=fmean(
-                resultado.espera_media_minutos for resultado in resultados
-            ),
-            intervalo_servicio_95=(
-                max(0.0, servicio_medio - margen),
-                min(1.0, servicio_medio + margen),
-            ),
+            **medias,
+            intervalo_servicio_95=intervalos["nivel_servicio"],
+            intervalos_95=intervalos,
+            repeticiones=resultados,
             llamadas_medidas=sum(resultado.llamadas_medidas for resultado in resultados),
         )

@@ -1,5 +1,12 @@
 # D — Estudio, controlador e integración final
 
+## Revisión local actual
+
+Desde el 2026-10-27, los escenarios confirmados del caso son 4, 6 y 8 agentes. La búsqueda del mínimo teórico sigue evaluando todos los enteros estables. Los escenarios 5, 6 y 7 mencionados más abajo pertenecen a comprobaciones anteriores.
+
+El programa de esta copia fue corregido y ampliado el 2026-10-26. README.md y COORDINACION.md describen los contratos vigentes, las tres gráficas, la exportación por repetición, los intervalos t de Student, el progreso y la cancelación. Las entregas y comprobaciones anteriores de este documento se conservan como historial; sus descripciones de interfaces o estadística pueden corresponder a la versión anterior. Esta revisión corresponde a la actualización de main autorizada el 2026-10-27; las notas de entrega anteriores se conservan como historial.
+
+
 ## Mensaje para tu agente
 
 > Soy D. Lee `COORDINACION.md` y `docs/Derick.md` completos. Implementa mi parte de estudio comparativo, controlador único e integración, respetando los contratos y la propiedad de archivos. No implementes por tu cuenta los módulos pendientes de R, M o E y no dupliques sus clases. No crees tests ni inicies otros agentes. Trabaja por commits, marca con `[x]` solo lo comprobado y registra dependencias y entrega final. Completa `main.py` solo después de la entrega explícita de R. Integra las partes disponibles, verifica el flujo completo y actualiza el README; conserva y coordina cualquier cambio ajeno.

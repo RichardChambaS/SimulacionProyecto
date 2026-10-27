@@ -1,155 +1,219 @@
-# Simulación M/M/c: Erlang-C frente a simulación de eventos discretos
+# Centro de llamadas con Erlang-C y simulación M/M/c
 
-Aplicación de escritorio en Python que determina el mínimo de agentes necesario
-para cumplir una meta de nivel de servicio mediante Erlang-C y contrasta el
-resultado con una simulación de eventos discretos M/M/c. La interfaz muestra
-una tabla comparativa por escenario y una gráfica con los intervalos
-aproximados del 95 % de la simulación.
+Aplicación de escritorio en Python para buscar el mínimo teórico de agentes que
+cumple una meta de servicio y contrastarlo con una simulación de eventos discretos.
+Presenta tres escenarios, cinco medidas comparables, intervalos aproximados del
+95 %, tres gráficas y una exportación reproducible.
 
-## Requisitos
+## Copia de trabajo
 
-- Python 3.10 o posterior. La comprobación integrada se realizó con Python 3.14.4.
-- Tcl/Tk 8.6 y su enlace para Python (`tkinter`). En Debian/Ubuntu suele
-  instalarse con el paquete del sistema `python3-tk`; no se instala con `pip`.
-- Las dependencias de `requirements.txt` (`matplotlib`, `numpy` y `scipy`).
+Esta revisión se encuentra en la carpeta que contiene este README y main.py.
+En el entorno original es SimulacionP1/SimulacionProyecto. La subcarpeta anidada
+SimulacionProyecto/ es una copia anterior y no forma parte de la entrega corregida.
+No se ha borrado ni actualizado esa copia. El ZIP de entrega excluye esa carpeta,
+el entorno virtual y los metadatos Git.
 
-## Instalación en un entorno virtual
+## Ejecutar en Windows
 
-```bash
-python3 -m venv .venv
-source .venv/bin/activate
-python -m pip install --upgrade pip
-python -m pip install -r requirements.txt
-```
+Se requiere Python 3.10 o posterior con Tkinter y Tcl/Tk. No utilizar Python 2.7.
+En el equipo revisado ya existe un entorno virtual válido. Desde esta carpeta:
 
-En Windows, la activación del entorno es `.venv\Scripts\activate`.
+~~~powershell
+.\.venv\Scripts\python.exe main.py
+~~~
 
-## Ejecución
+Para una instalación nueva, utilizar un Python 3 instalado y crear el entorno:
 
-Desde la raíz del proyecto y con el entorno virtual activo:
+~~~powershell
+py -3 -m venv .venv
+.\.venv\Scripts\python.exe -m pip install -r requirements.txt
+.\.venv\Scripts\python.exe main.py
+~~~
 
-```bash
-python main.py
-```
+Si no existe el lanzador py, ejecutar la primera instrucción con la ruta del
+python.exe de Python 3. El comando global python puede apuntar a otra versión.
 
-La ventana permite introducir la demanda, la atención media, la meta de
-servicio, el umbral, la duración medida, el calentamiento, las repeticiones y
-la semilla. Al pulsar **Ejecutar estudio**, el cálculo se realiza en segundo
-plano y la interfaz permanece operativa; al terminar se actualizan la tabla, el
-resumen y la gráfica.
+En Linux o macOS, crear el entorno con python3 -m venv .venv y utilizar
+.venv/bin/python para instalar requirements.txt y ejecutar main.py. En Linux
+puede ser necesario instalar el soporte de Tkinter mediante el gestor del sistema.
 
-## Unidades y supuestos
+Matplotlib dibuja las gráficas; SciPy aporta el valor crítico t de Student.
+NumPy se instala como dependencia de estas bibliotecas; el motor usa Random
+de la biblioteca estándar, no NumPy ni SimPy.
 
-- Las llegadas se expresan en llamadas por hora y la atención media en minutos.
-- La meta de servicio se introduce como porcentaje en la interfaz y se convierte
-  a proporción antes de construir `Configuracion`.
-- El umbral se introduce en segundos; el modelo trabaja internamente en minutos.
-- La duración y el calentamiento se expresan en minutos.
-- Las llegadas siguen un proceso de Poisson y los tiempos de atención son
-  exponenciales e independientes, con cola FIFO ilimitada y sin abandono.
-- Solo se evalúan escenarios estables, es decir, con más agentes que la carga
-  ofrecida en erlangs.
-- El nivel de servicio es la proporción de llamadas medidas cuya espera es
-  menor o igual al umbral. El umbral se incluye exactamente.
-- Las llamadas que llegan en `[calentamiento, calentamiento + duración)` se
-  consideran medidas. Las llamadas del calentamiento afectan al estado del
-  sistema, pero no al denominador del nivel de servicio.
-- La utilización simulada incluye la ocupación de servicios iniciados durante
-  el calentamiento que continúan dentro del período medido.
-- El intervalo del 95 % es una aproximación normal a partir de los niveles de
-  servicio de las repeticiones independientes: media ± `1.96 * desviación
-  muestral / sqrt(repeticiones)`, acotado a `[0, 1]`. No corrige un
-  calentamiento insuficiente ni el error de Monte Carlo.
+## Uso
 
-## Escenarios y lectura de la conclusión
+1. Revisar λ (llegadas por minuto), h (atención media en minutos), t₀ (espera máxima
+   en segundos) y S₀ (meta en porcentaje). Se aceptan coma o punto decimal.
+2. Elegir agentes automáticamente o introducir tres cantidades distintas y estables
+   en modo manual. Para recuperar el caso 4, 6 y 8, pulsar Restablecer el caso del informe.
+3. Abrir Opciones de simulación para revisar tiempo medido, tiempo inicial
+   (calentamiento), R (repeticiones) y semilla. Al inicio mantienen los valores anteriores.
+4. Pulsar Ejecutar simulación. El estado muestra la repetición actual y el tiempo
+   transcurrido; la barra avanza al completar cada repetición.
+5. Revisar el resumen y las pestañas Nivel de servicio, Espera media, Utilización
+   y Medidas. Esta última muestra las cinco medidas con un selector Simulación/Erlang-C.
+6. Pulsar Exportar y elegir una carpeta. Se crea una subcarpeta única.
+7. Cancelar permite detener un estudio. Si ya había un estudio completo, se
+   conserva para su consulta y exportación. Los estudios incompletos no se exportan.
 
-El estudio muestra el mínimo teórico y sus vecinos. Si el agente inmediatamente
-inferior es inestable, se muestran el mínimo, el mínimo + 1 y el mínimo + 2.
-Para cada escenario se evalúan ambos métodos.
+Los campos permanecen bloqueados durante el cálculo y no se permiten ejecuciones
+simultáneas. El resumen identifica la configuración del último estudio completo,
+aunque después se cambien las entradas del formulario.
 
-La conclusión simulada se interpreta así:
+La pantalla presenta medias y una lectura sencilla de la meta. Cumple y No cumple
+significan cumplimiento o incumplimiento respaldado por el intervalo del 95 %;
+No concluyente significa que el intervalo cruza la meta. Las barras de las gráficas
+conservan los intervalos. Las diferencias, errores e intervalos de todas las medidas
+se conservan en JSON/CSV, sin añadir esas columnas a la pantalla.
 
-- **Cumplimiento respaldado** si el límite inferior del intervalo es mayor o
-  igual a la meta.
-- **Incumplimiento** si el límite superior del intervalo es menor que la meta.
-- **No concluyente** en los demás casos.
+La vista muestra μ = 1/h y A = λh. El mínimo teórico se calcula siempre por separado,
+incluso si los escenarios manuales no contienen ese mínimo. Los agentes elegidos
+quedan registrados en los escenarios de la exportación.
 
-La simulación solo respalda o no respalda los escenarios evaluados; no demuestra
-un mínimo absoluto fuera de ellos. El mínimo anunciado es el mínimo teórico de
-Erlang-C.
+## Avisos antes de ejecutar
 
-## Arquitectura MVC y patrón Strategy
+La aplicación estima 2 × λ × (calentamiento + tiempo medido) × R × 3 eventos,
+con λ por minuto: una llegada y una finalización por llamada. Es una estimación
+de trabajo, no un pronóstico exacto de duración ni una comprobación de precisión.
 
-- **Modelo** (`app/modelo/`): contiene `Configuracion`, las dataclasses de
-  resultados, `ErlangC`, `Simulador` y `EstudioServicio`. No importa Tkinter ni
-  módulos de la vista.
-- **Vista** (`app/vista/`): `VentanaPrincipal` recoge las entradas y presenta
-  tabla, resumen y gráfica. No calcula Erlang-C ni ejecuta simulaciones.
-- **Controlador** (`app/controlador/controlador.py`): `Controlador` conecta el
-  botón con `EstudioServicio`, valida la configuración, ejecuta el estudio fuera
-  del hilo de Tkinter y devuelve el resultado a la interfaz mediante `after()`.
-- **Strategy**: `ErlangC` y `Simulador` implementan el mismo método
-  `evaluar(configuracion, agentes)`, de modo que `EstudioServicio` puede
-  combinarlos sin conocer sus algoritmos. `EstudioServicio` recibe ambas
-  estrategias por constructor.
-- `main.py` construye las dos estrategias, el estudio, la vista y el
-  controlador, y arranca el bucle de Tkinter.
+- Más de 5 millones de eventos esperados: aviso con opción de continuar o cancelar.
+- Más de 1000 millones, trabajo no representable, o carga/agentes manuales que
+  exigirían recorrer más de un millón de agentes en la teoría: se detiene antes
+  de iniciar y se pide reducir los valores. Son límites de uso de esta aplicación,
+  no restricciones matemáticas de M/M/c ni requisitos del informe.
+- Los parámetros nunca se reducen automáticamente. La cancelación permanece disponible.
 
-## Archivos principales
+Ejemplo: 20 000 llamadas/h equivalen a 333,333… llamadas/min. Con los demás valores
+iniciales se estiman 348 millones de eventos y se solicita confirmación. Introducir
+20 000 directamente en λ significa 20 000 por minuto y supera el límite de trabajo.
 
-| Archivo | Responsabilidad |
-| --- | --- |
-| `main.py` | Arranque y composición MVC |
-| `app/modelo/configuracion.py` | Parámetros, conversiones y validación |
-| `app/modelo/resultados.py` | Dataclasses compartidas |
-| `app/modelo/erlang_c.py` | Teoría estacionaria y búsqueda del mínimo |
-| `app/modelo/simulacion.py` | Motor de eventos discretos, repeticiones e intervalo |
-| `app/modelo/estudio.py` | Selección de escenarios y comparación |
-| `app/vista/ventana_principal.py` | Formulario, tabla, resumen y estados |
-| `app/vista/graficos.py` | Gráfica de servicio frente a agentes |
-| `app/controlador/controlador.py` | Conecta vista, validación y estudio |
+## Parámetros y alcance
 
-## Comprobación integrada realizada
+Los valores del caso son 30 llamadas/hora, 6 minutos de atención media y una meta
+del 80 % con espera de hasta 20 segundos. Los valores iniciales de 4800 minutos
+medidos, 1000 minutos de calentamiento, 30 repeticiones y semilla 42 son ejemplos
+de configuración del programa. El equipo debe justificar o ajustar la configuración
+del experimento definitivo; no son requisitos del profesor.
 
-Fecha: 2026-10-26. Entorno: Python 3.14.4, Tcl/Tk 8.6, entorno virtual con
-Matplotlib 3.11.2, Pillow 13.0.0 y NumPy 2.5.4.
+El programa exige al menos dos repeticiones para calcular la variabilidad. Ese
+mínimo técnico no garantiza que las estimaciones sean suficientemente precisas.
 
-Con la configuración inicial (30 llamadas/h, atención media 6 min, meta 80 %,
-umbral 20 s, 4800 min medidos tras 1000 min de calentamiento, 30 repeticiones y
-semilla 42) el mínimo teórico fue **6 agentes** y los escenarios seleccionados
-fueron **5, 6 y 7**.
+- Llegadas Poisson, servicios exponenciales independientes y tasas constantes.
+- Una cola FIFO ilimitada, agentes equivalentes y sin abandono.
+- Cada agente atiende una sola llamada a la vez.
+- Las finalizaciones se procesan antes que las llegadas empatadas.
+- La comparación estacionaria requiere agentes > carga ofrecida.
+- La búsqueda del mínimo teórico recorre los enteros estables hasta cumplir la meta.
+- Los escenarios confirmados para el caso son 4, 6 y 8 agentes: dotación inferior,
+  mínimo teórico y dotación superior. La demanda y los demás parámetros se mantienen.
+- Para otras entradas se muestran mínimo - 2, mínimo y mínimo + 2. Si el primero
+  es inestable, se usa mínimo - 1; si también es inestable, se muestran mínimo,
+  mínimo + 2 y mínimo + 4. La búsqueda del mínimo sigue evaluando todos los enteros
+  estables, incluido 5 en el caso actual.
+- En modo manual se comparan las tres cantidades introducidas, ordenadas de menor
+  a mayor. Cada una debe satisfacer c > A. La búsqueda del mínimo no cambia.
 
-| Agentes | Servicio teórico | Servicio simulado | IC 95 % aproximado | Lectura frente a 80 % |
-| --- | --- | --- | --- | --- |
-| 5 | 78.87 % | 79.77 % | [78.71 %, 80.82 %] | No concluyente |
-| 6 | 91.61 % | 92.09 % | [91.50 %, 92.68 %] | Cumplimiento respaldado |
-| 7 | 96.99 % | 97.22 % | [96.90 %, 97.55 %] | Cumplimiento respaldado |
+## Definiciones y medición
 
-Se verificaron manualmente la apertura de la ventana, la tabla y la gráfica con
-ambos métodos, el estado ocupado, la prevención de ejecuciones simultáneas, la
-restauración del botón tras un error, varias ejecuciones consecutivas y el
-cierre durante un estudio en curso sin bloquear el proceso. También se comprobó
-que con una meta del 1 % el mínimo es 4 y se muestran los escenarios 4, 5 y 6
-porque el agente 3 es inestable.
+El motor trabaja en minutos. La interfaz recibe λ en llamadas por minuto y lo
+convierte al campo tasa_llegadas_hora del contrato interno. El umbral se introduce
+en segundos y se muestra su equivalencia en minutos; S₀ se convierte de % a proporción.
+La vista presenta las esperas en segundos y las proporciones en %.
 
-Comandos usados para la comprobación principal:
+Las llamadas medidas llegan en [calentamiento, calentamiento + duración).
+Las llegadas del calentamiento influyen en el estado, pero no en el denominador de
+las medidas por llamada. Al cerrar las llegadas se completa la atención pendiente.
 
-```bash
-python main.py
-python -m compileall app main.py
-```
+- Nivel de servicio: fracción con espera menor o igual al umbral, incluidos los ceros.
+- Espera media: espera de todas las llamadas medidas, incluidas las inmediatas.
+- Probabilidad de espera: fracción con espera estrictamente positiva.
+- Utilización: integral de agentes ocupados, dividida para duración y agentes.
+- Longitud media de cola: integral temporal del número de llamadas esperando,
+  dividida para la duración. Incluye el estado heredado del calentamiento.
 
-No se añadieron archivos de tests ni scripts de comprobación permanentes.
+Utilización y longitud de cola se recortan a la ventana medida. No incluyen el
+vaciado posterior. La igualdad Lq = lambda * Wq es estacionaria: una ventana finita
+puede producir diferencias por sus fronteras y por la variación aleatoria. Lq se
+mide de forma independiente, no se obtiene multiplicando la espera simulada.
 
-## Limitaciones
+## Repeticiones, intervalos y comparación
 
-- La conclusión estadística depende de la duración, del calentamiento, del
-  número de repeticiones y de la semilla. Un intervalo que incluye la meta no
-  permite afirmar cumplimiento ni incumplimiento.
-- Los escenarios comparten las mismas trayectorias aleatorias para reducir
-  ruido en la comparación; no son muestras independientes entre sí.
-- El modelo supone estacionariedad, llegadas Poisson, servicios exponenciales
-  independientes y cola sin abandono. No representa horarios variables,
-  prioridades ni llamadas abandonadas.
-- La aplicación se comprobó en Linux con Tcl/Tk 8.6. No se verificó en Windows
-  ni macOS.
+Cada repetición utiliza dos semillas de texto registradas:
+semilla:indice:llegadas y semilla:indice:atenciones, con indice interno desde cero.
+Las repeticiones usan semillas distintas. Los escenarios reutilizan las mismas
+entradas para reducir ruido en su comparación; no son independientes entre sí.
+
+El resumen es la media entre repeticiones. El conteo de llamadas es la suma.
+Para cada una de las cinco medidas se calcula:
+
+media ± t(0.975, R - 1) * desviación muestral / sqrt(R)
+
+Se usa t de Student y se recortan los límites al dominio de la medida. Son
+intervalos aproximados: no corrigen sesgo por calentamiento insuficiente y su
+precisión debe revisarse. Las llamadas correlacionadas de una repetición no se
+consideran muestras independientes.
+
+- Límite inferior del servicio >= meta: cumplimiento respaldado.
+- Límite superior del servicio < meta: incumplimiento respaldado.
+- En otro caso: no concluyente.
+
+El mínimo anunciado es teórico. Una simulación que respalda un escenario no
+demuestra por sí sola un mínimo absoluto. Un escenario no concluyente exige
+mayor precisión o una conclusión que reconozca la incertidumbre.
+
+La comparación muestra diferencia = simulado - teórico, error absoluto y error
+relativo (%) = 100 * abs(simulado - teórico) / abs(teórico).
+Si la referencia es cero, el error relativo queda sin definir.
+Las diferencias de proporciones se muestran en puntos porcentuales (pp).
+
+## Archivos exportados
+
+- estudio.json: configuración, versiones, teoría, medias, intervalos y repeticiones.
+- comparacion.csv: las cinco medidas por escenario y sus diferencias.
+- repeticiones.csv: datos de cada repetición y las dos semillas exactas.
+- nivel_servicio.png, espera_media_minutos.png y utilizacion.png: tres gráficas.
+- LEEME.txt: unidades y criterios de lectura de los archivos.
+
+Los CSV usan coma, punto decimal y UTF-8 con BOM. JSON y CSV conservan minutos
+y proporciones; las imágenes usan segundos y porcentajes.
+La fecha de las carpetas y los metadatos se identifica expresamente en UTC.
+Cada exportación crea una carpeta única y no sobrescribe un estudio anterior.
+
+## Organización del código
+
+- app/modelo/: configuración, teoría, simulación, datos y comparación.
+- app/vista/: formulario, tablas y gráficas.
+- app/controlador/: ejecución en segundo plano, progreso, cancelación y exportación.
+- app/exportacion.py: serialización de datos y guardado de las tres figuras.
+- app/planificacion.py: estimación previa y límites de trabajo de la aplicación.
+- main.py: construcción y arranque de los componentes.
+
+La separación MVC y el contrato común evaluar son decisiones de implementación,
+no requisitos atribuidos al profesor. No se necesita una clase padre abstracta.
+
+## Verificación de esta revisión
+
+Se ejecutaron 85 comprobaciones temporales con Python 3.14.4 en Windows:
+fórmula independiente de Erlang-C, casos controlados de FIFO y empates, medición
+por ventana y calentamiento, vaciado final, reproducibilidad, clasificación,
+validación de entradas, exportación JSON/CSV/PNG, actualización de las tres gráficas,
+conservación de canvas, progreso, cancelación y recuperación ante errores.
+
+Se añadieron 24 comprobaciones de la nueva interfaz: igualdad exacta de todos los
+resultados automáticos frente a la versión anterior, conversiones de unidades,
+agentes manuales, independencia del mínimo teórico, rechazo de escenarios inestables,
+avisos y bloqueo de cargas extremas. Se revisó la presentación en 1200×820 y 1030×700.
+
+Los scripts de comprobación no forman parte del paquete de la aplicación.
+Estas pruebas verifican el programa. No sustituyen la elección y justificación
+del experimento académico ni la redacción de los resultados.
+
+## Pendientes del informe
+
+La metodología está integrada en ASD_revision_actual.docx y los resultados se
+presentan por separado en Resultados_propuesta.docx. Los escenarios 4, 6 y 8 están
+confirmados. El equipo debe revisar los demás apartados marcados como propuesta,
+justificar la configuración experimental y conservar el estudio definitivo antes
+de completar discusión, conclusiones y recomendaciones. Al final se actualizan
+el resumen, la declaratoria de IA y la correspondencia entre citas y referencias.

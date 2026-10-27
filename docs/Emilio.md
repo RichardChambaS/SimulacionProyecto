@@ -1,5 +1,10 @@
 # E — Interfaz gráfica y gráficas
 
+## Revisión local actual
+
+El programa de esta copia fue corregido y ampliado el 2026-10-26. README.md y COORDINACION.md describen los contratos vigentes, las tres gráficas, la exportación por repetición, los intervalos t de Student, el progreso y la cancelación. Las entregas y comprobaciones anteriores de este documento se conservan como historial; sus descripciones de interfaces o estadística pueden corresponder a la versión anterior. Esta revisión corresponde a la actualización de main autorizada el 2026-10-27; las notas de entrega anteriores se conservan como historial.
+
+
 ## Mensaje para tu agente
 
 > Soy E. Lee `COORDINACION.md` y `docs/Emilio.md` completos. Comprueba que la base de R esté integrada y sincroniza mi rama. Implementa únicamente la vista, las gráficas y `requirements.txt`. No calcules teoría ni simulación en la interfaz y respeta los métodos públicos acordados con D. No crees tests ni inicies otros agentes. Haz commits por avances coherentes, marca con `[x]` las tareas completadas y comprobadas y registra cómo se verificó la interfaz y qué necesita D para conectarla. Conserva los cambios y archivos de los demás.

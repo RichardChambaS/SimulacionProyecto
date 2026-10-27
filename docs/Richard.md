@@ -1,5 +1,10 @@
 # R — Base del proyecto y Erlang-C
 
+## Revisión local actual
+
+El programa de esta copia fue corregido y ampliado el 2026-10-26. README.md y COORDINACION.md describen los contratos vigentes, las tres gráficas, la exportación por repetición, los intervalos t de Student, el progreso y la cancelación. Las entregas y comprobaciones anteriores de este documento se conservan como historial; sus descripciones de interfaces o estadística pueden corresponder a la versión anterior. Esta revisión corresponde a la actualización de main autorizada el 2026-10-27; las notas de entrega anteriores se conservan como historial.
+
+
 ## Mensaje para tu agente
 
 > Soy R. Lee `COORDINACION.md` y `docs/Richard.md` completos. Implementa únicamente mi parte y respeta los contratos y la propiedad de archivos. Primero comprueba la rama y el estado de Git; conserva cambios ajenos. No implementes toda la aplicación, no crees tests ni inicies otros agentes. Entrega la base de contratos antes de continuar la teoría para que M, E y D puedan trabajar. Haz commits por avances coherentes, marca con `[x]` las tareas completadas y comprobadas, y registra la entrega y los bloqueos. Si no existe remoto, prepara el trabajo local y deja la publicación pendiente hasta recibir la URL del equipo.
