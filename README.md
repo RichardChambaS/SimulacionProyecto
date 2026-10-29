@@ -82,11 +82,27 @@ de trabajo, no un pronóstico exacto de duración ni una comprobación de precis
   exigirían recorrer más de un millón de agentes en la teoría: se detiene antes
   de iniciar y se pide reducir los valores. Son límites de uso de esta aplicación,
   no restricciones matemáticas de M/M/c ni requisitos del informe.
+- La estimación también bloquea enteros que desbordan el cálculo y más de
+  333 333 333 repeticiones por escenario, incluso si hay muy pocas llegadas.
+  Cada repetición supone trabajo y el límite no depende solo de las llamadas.
 - Los parámetros nunca se reducen automáticamente. La cancelación permanece disponible.
 
 Ejemplo: 20 000 llamadas/h equivalen a 333,333… llamadas/min. Con los demás valores
 iniciales se estiman 348 millones de eventos y se solicita confirmación. Introducir
 20 000 directamente en λ significa 20 000 por minuto y supera el límite de trabajo.
+
+## Comprobar las validaciones
+
+Desde esta carpeta, con las dependencias instaladas:
+
+~~~powershell
+.\.venv\Scripts\python.exe -m unittest discover -s tests -v
+~~~
+
+La suite comprueba el modelo y los campos de la interfaz: cero y negativos,
+enteros y decimales, campos vacíos, texto, valores no finitos, agentes repetidos,
+escenarios inestables y límites de trabajo. Los casos de Tkinter necesitan una
+pantalla disponible; se omiten expresamente si el entorno no dispone de ella.
 
 ## Parámetros y alcance
 
